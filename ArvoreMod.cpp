@@ -150,56 +150,185 @@ void apagar(){
 	}
 }
 
-void percorrer(){
+void preOrdem(){
+	// pre Ordem
+			arvore *preOrdem= primeiro;
+			int i;
+			int j=0;
+			int fim=0;
+			int vetor [20];
+			for(i=0;i<20;i++){
+				vetor[i]=999;
+			}
+			
+			int flag=0;
+			int nav=0;//Fica andando pela arvore contando se esta subindo ou descendo
+			int profundidade=0;
+			
+			
+			vetor[j]=preOrdem->valor;
+			j++;
+			
+			for(;;){
+				if(flag == 0){//esquerda
+					if(preOrdem->esquerda != NULL){
+						preOrdem = preOrdem->esquerda;
+						vetor[j] = preOrdem->valor;
+						j++;
+						nav+=1;
+						if(nav > profundidade){
+							profundidade = nav;
+						}
+					}else if((preOrdem->esquerda == NULL)&&(preOrdem->direita != NULL)){
+						flag=1;
+					}else if((preOrdem->esquerda == NULL)&&(preOrdem->direita == NULL)){
+						flag=2;
+					}
+					
+				}else if(flag == 1){//direita
+					if(preOrdem->direita != NULL){
+						preOrdem=preOrdem->direita;
+						vetor[j]=preOrdem->valor;
+						j++;
+						
+						nav+=1;
+						if(nav > profundidade){
+							profundidade = nav;
+						}
+						
+						if(preOrdem->esquerda != NULL){
+							flag=0;
+						}
+						
+					}else if((preOrdem->esquerda == NULL)&&(preOrdem->direita == NULL)){
+						flag=2;
+					}
+				}else if(flag == 2){//subindo
+					if(preOrdem->ant != NULL){
+						preOrdem=preOrdem->ant;
+						
+						nav-=1;
+						
+						int pe=0;
+						int pd=0;
+						for(i=0;i<20;i++){
+							
+							if(preOrdem->esquerda != NULL){
+								if(preOrdem->esquerda->valor == vetor[i]){
+									pe=1;
+								}
+							}else{
+								pe=1;
+							}
+							if(preOrdem->direita != NULL){
+								if(preOrdem->direita->valor == vetor[i]){
+									pd=1;
+								}
+							}else{
+								pd=1;
+							}
+						}
+						if((pe==1)&&(pd==1)){
+							flag=2;
+						}else if((pe==0)&&(pd==1)){
+							flag=0;
+						}else if((pe==1)&&(pd==0)){
+							flag=1;
+						}
+						
+					}else if(preOrdem->direita == NULL){
+						flag=3;
+					}else if(preOrdem->direita != NULL){
+						flag=1;
+						fim+=2;
+						if(fim == 2){
+							flag=3;
+						}
+					}
+				}else if(flag == 3){//acabou
+					break;
+				}	
+			}
+	
+			printf("\nVetor Pronto \n\n");
+			for(i=0;i<20;i++){
+				if(vetor[i] != 999){
+					printf(" %i -",vetor[i]);	
+				}
+			}
+			printf("\n\nA profundidade maxima da arvore e igual a {%i}\n\n", profundidade);
+				
+			system("pause");
+		
+		//fim Pre Ordem
+}
+
+void emOrdem(){
+	arvore *preOrdem= primeiro;
 	int vetor[20];
-	int flag;
 	int i=0;
-	int flagVerificacao=0;
-	arvore *percorrer = primeiro;
+	int flagD = 0;
+	int flagE = 0;
+	int flag = 0;
 	
 	for(int j=0;j<20;j++){
-		vetor[j] = 0;
+		vetor[j] = 999;
 	}
 	
-	for(int j=0;j<1000;j++){
-		
+	while(preOrdem->esquerda != NULL){
+		preOrdem = preOrdem->esquerda;
+	}
+	
+	vetor[i] = preOrdem->valor;
+	i++;
+	
+	for(;;){
 		for(int j=0;j<20;j++){
-			if(percorrer->direita->valor == vetor[j]){
-				flagVerificacao=1;
-			}
-		}
-		
-		while(percorrer->esquerda != NULL){
-			vetor[i] = percorrer->valor;
-			percorrer = percorrer->esquerda;
-			i++;
-			printf(" %d \n", percorrer->valor);
-		}
-		
-		while(percorrer->ant->direita != NULL){
+			flag=0;
+			flagE=0;
+			flagD=0;
 			
-			percorrer = percorrer->ant;
-			
-			if(flagVerificacao == 0){
-				vetor[i] = percorrer->valor;
-				i++;
-				printf(" %d \n", percorrer->valor);
+			if(vetor[j] == preOrdem->valor){
+				flag = 1;
+				printf("Flag\n\n");
+				break;
+			}else if (vetor[j] == preOrdem->esquerda->valor){
+				flagE = 1;
+				printf("FlagE\n\n");
+				break;
+			}else if (vetor[j] == preOrdem->direita->valor){
+				flagD = 1;
+				printf("FlagD\n\n");
+				break;
+			}else if (flag==1 && flagE==1 && flagD==1) {
+				preOrdem = preOrdem->ant;
+				printf("Voltei\n\n");
 				break;
 			}
 		}
 		
-		if(percorrer->direita != NULL){
-			percorrer = percorrer->direita;
-			vetor[i] = percorrer->valor;
+			
+		if(flag == 0){
+			vetor[i] = preOrdem->valor;
 			i++;
-			printf(" %d \n", percorrer->valor);
+			printf("%d ", preOrdem->valor);
+		}else if(flagE == 0){
+			preOrdem = preOrdem->esquerda;
+			vetor[i] = preOrdem->valor;
+			i++;
+			printf("%d ", preOrdem->valor);
+		}else if(flagD == 0){
+			preOrdem = preOrdem->direita;
+			vetor[i] = preOrdem->valor;
+			i++;
+			printf("%d ", preOrdem->valor);
 		}
 	}
 	
+	
 	for(int j=0;j<20;j++){
-		printf ("%d | ", vetor[i]);
+		printf("%d - ", vetor[j]);
 	}
-	system("pause");
 }
 
 int main()
@@ -211,8 +340,8 @@ int main()
 		printf("1--> Inserir elementos na arvore\n");
 		printf("2--> Procurar um numero na arvore\n");
 		printf("3--> Percorer a arvore\n");
-		printf("4--> Backup\n");
-		printf("5--> Percorrer\n");
+		printf("4--> Em Ordem\n");
+		printf("5--> Pre-Ordem\n");
 		printf("6--> Sair ");
 		ops = _getch();
 		if (ops == SEIS){
@@ -225,7 +354,7 @@ int main()
 			}
 		}
 		else if (ops==CINCO){
-			percorrer();
+			preOrdem();
 		}
 		else if (ops == QUATRO){
 			system("cls");
@@ -233,9 +362,7 @@ int main()
 				printf("\n\nArvore vazia!!!");
 			}
 			else{
-				apaga();
-				backup(primeiro);
-				grava();
+				emOrdem();
 
 			}
 		}
