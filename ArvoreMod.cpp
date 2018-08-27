@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <conio.h>
 #include <windows.h>
+#include <malloc.h>
 
 #define UM 49
 #define DOIS 50
@@ -29,7 +30,7 @@ struct arvore
 	struct arvore *ant;
 	struct arvore *direita;
 	struct arvore *esquerda;
-};
+} NO;
 
 arvore *atual = NULL;
 	arvore *posisaoAnterior = NULL;
@@ -43,6 +44,8 @@ int valores[50];
 int ops2 = 1, num;
 int cont = 0;
 int vetortxt[50];
+
+typedef struct arvore *PontNo;
 
 //GRAVA OS VALORES ORGANIZADOS EM "pre-ordem.txt"
 
@@ -94,6 +97,8 @@ void backup(arvore *raiz)
 		}
 	}
 }
+
+//typedef NO* PontNo;
 
 void apagar(){
 	arvore *temporaria = posicaoAtual;
@@ -150,118 +155,31 @@ void apagar(){
 	}
 }
 
-void preOrdem(){
-	// pre Ordem
-			arvore *preOrdem= primeiro;
-			int i;
-			int j=0;
-			int fim=0;
-			int vetor [20];
-			for(i=0;i<20;i++){
-				vetor[i]=999;
-			}
-			
-			int flag=0;
-			int nav=0;//Fica andando pela arvore contando se esta subindo ou descendo
-			int profundidade=0;
-			
-			
-			vetor[j]=preOrdem->valor;
-			j++;
-			
-			for(;;){
-				if(flag == 0){//esquerda
-					if(preOrdem->esquerda != NULL){
-						preOrdem = preOrdem->esquerda;
-						vetor[j] = preOrdem->valor;
-						j++;
-						nav+=1;
-						if(nav > profundidade){
-							profundidade = nav;
-						}
-					}else if((preOrdem->esquerda == NULL)&&(preOrdem->direita != NULL)){
-						flag=1;
-					}else if((preOrdem->esquerda == NULL)&&(preOrdem->direita == NULL)){
-						flag=2;
-					}
-					
-				}else if(flag == 1){//direita
-					if(preOrdem->direita != NULL){
-						preOrdem=preOrdem->direita;
-						vetor[j]=preOrdem->valor;
-						j++;
-						
-						nav+=1;
-						if(nav > profundidade){
-							profundidade = nav;
-						}
-						
-						if(preOrdem->esquerda != NULL){
-							flag=0;
-						}
-						
-					}else if((preOrdem->esquerda == NULL)&&(preOrdem->direita == NULL)){
-						flag=2;
-					}
-				}else if(flag == 2){//subindo
-					if(preOrdem->ant != NULL){
-						preOrdem=preOrdem->ant;
-						
-						nav-=1;
-						
-						int pe=0;
-						int pd=0;
-						for(i=0;i<20;i++){
-							
-							if(preOrdem->esquerda != NULL){
-								if(preOrdem->esquerda->valor == vetor[i]){
-									pe=1;
-								}
-							}else{
-								pe=1;
-							}
-							if(preOrdem->direita != NULL){
-								if(preOrdem->direita->valor == vetor[i]){
-									pd=1;
-								}
-							}else{
-								pd=1;
-							}
-						}
-						if((pe==1)&&(pd==1)){
-							flag=2;
-						}else if((pe==0)&&(pd==1)){
-							flag=0;
-						}else if((pe==1)&&(pd==0)){
-							flag=1;
-						}
-						
-					}else if(preOrdem->direita == NULL){
-						flag=3;
-					}else if(preOrdem->direita != NULL){
-						flag=1;
-						fim+=2;
-						if(fim == 2){
-							flag=3;
-						}
-					}
-				}else if(flag == 3){//acabou
-					break;
-				}	
-			}
-	
-			printf("\nVetor Pronto \n\n");
-			for(i=0;i<20;i++){
-				if(vetor[i] != 999){
-					printf(" %i -",vetor[i]);	
-				}
-			}
-			printf("\n\nA profundidade maxima da arvore e igual a {%i}\n\n", profundidade);
-				
-			system("pause");
-		
-		//fim Pre Ordem
+/* Exibe arvore Em Ordem         */
+void exibirArvoreEmOrdem(PontNo raiz){
+  	if (raiz == NULL) return;
+  	
+  	exibirArvoreEmOrdem(raiz->esquerda);
+  	printf("%i ",raiz->valor);
+  	exibirArvoreEmOrdem(raiz->direita);
 }
+
+/* Exibe arvore Pre Ordem         */
+void exibirArvorePreOrdem(PontNo raiz){
+  	if (raiz == NULL) return;
+  	printf("%i ",raiz->valor);
+  	exibirArvorePreOrdem(raiz->esquerda);
+  	exibirArvorePreOrdem(raiz->direita);
+}
+
+/* Exibe arvore Pos Ordem         */
+void exibirArvorePosOrdem(PontNo raiz){
+  	if (raiz == NULL) return;
+  	exibirArvorePosOrdem(raiz->esquerda);
+  	exibirArvorePosOrdem(raiz->direita);
+  	printf("%i ",raiz->valor);
+}
+
 
 void emOrdem(){
 	arvore *preOrdem= primeiro;
@@ -342,19 +260,15 @@ int main()
 		printf("3--> Percorer a arvore\n");
 		printf("4--> Em Ordem\n");
 		printf("5--> Pre-Ordem\n");
-		printf("6--> Sair ");
+		printf("6--> Pos-Ordem ");
 		ops = _getch();
 		if (ops == SEIS){
-			char a;
-			system("cls");
-			printf("Realmente deseja sair? (1 sair/2 continuar)\n");
-			a = _getch();
-			if ((a == UM)){
-				sair++;
-			}
+			exibirArvorePosOrdem(primeiro);
+			system("pause");
 		}
 		else if (ops==CINCO){
-			preOrdem();
+			exibirArvorePreOrdem(primeiro);
+			system("pause");
 		}
 		else if (ops == QUATRO){
 			system("cls");
@@ -362,7 +276,9 @@ int main()
 				printf("\n\nArvore vazia!!!");
 			}
 			else{
-				emOrdem();
+				exibirArvoreEmOrdem(primeiro);
+				printf("\n\n\n");
+				system("pause");
 
 			}
 		}
