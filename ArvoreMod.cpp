@@ -18,6 +18,7 @@
 
 int quant = 0;
 int i=0;
+int profundidade = 0;
 
 	int ajuda = 0;
 	int sair = 0;
@@ -27,6 +28,7 @@ int i=0;
 struct arvore
 {
 	int valor;
+	int balanceamento;
 	struct arvore *ant;
 	struct arvore *direita;
 	struct arvore *esquerda;
@@ -46,57 +48,6 @@ int cont = 0;
 int vetortxt[50];
 
 typedef struct arvore *PontNo;
-
-//GRAVA OS VALORES ORGANIZADOS EM "pre-ordem.txt"
-
-void grava(){
-	FILE *arqGRAVA;
-	arqGRAVA = fopen("pre-ordem.txt", "w");
-	for (int i = 0; i <= cont; i++){
-		fprintf(arqGRAVA, " %d", valores[i]);
-	}
-	fclose(arqGRAVA);
-	_getch();
-}
-
-void apaga(){
-	remove("pre-ordem.txt");
-}
-
-
-
-//PEGA OS VALORES DO ARQUIVO "pega.txt" 
-
-void pega(){
-	FILE *arqPEGA;
-	arqPEGA = fopen("pre-ordem.txt", "r");
-	if (arqPEGA == NULL){
-		printf("ERROR 404 FILE NOT FOUND");
-	}
-	else{
-		while ((fscanf(arqPEGA, "%i ", &num)) != EOF)
-			(vetortxt[quant] = num, quant++);
-
-		fclose(arqPEGA);
-	}
-}
-
-//ORGANIZA OS VALORES DA ARVORE EM PRÉ-ORDEM
-
-void backup(arvore *raiz)
-{
-	if (ops2 == 1){
-		if (raiz != NULL){
-			if (raiz->valor != 0){
-				printf(" %i|", raiz->valor);
-			}
-			valores[cont] = raiz->valor;
-			cont++;
-			backup(raiz->esquerda);
-			backup(raiz->direita);
-		}
-	}
-}
 
 //typedef NO* PontNo;
 
@@ -158,7 +109,6 @@ void apagar(){
 /* Exibe arvore Em Ordem         */
 void exibirArvoreEmOrdem(PontNo raiz){
   	if (raiz == NULL) return;
-  	
   	exibirArvoreEmOrdem(raiz->esquerda);
   	printf("%i ",raiz->valor);
   	exibirArvoreEmOrdem(raiz->direita);
@@ -180,72 +130,15 @@ void exibirArvorePosOrdem(PontNo raiz){
   	printf("%i ",raiz->valor);
 }
 
-
-void emOrdem(){
-	arvore *preOrdem= primeiro;
-	int vetor[20];
-	int i=0;
-	int flagD = 0;
-	int flagE = 0;
-	int flag = 0;
-	
-	for(int j=0;j<20;j++){
-		vetor[j] = 999;
-	}
-	
-	while(preOrdem->esquerda != NULL){
-		preOrdem = preOrdem->esquerda;
-	}
-	
-	vetor[i] = preOrdem->valor;
-	i++;
-	
-	for(;;){
-		for(int j=0;j<20;j++){
-			flag=0;
-			flagE=0;
-			flagD=0;
-			
-			if(vetor[j] == preOrdem->valor){
-				flag = 1;
-				printf("Flag\n\n");
-				break;
-			}else if (vetor[j] == preOrdem->esquerda->valor){
-				flagE = 1;
-				printf("FlagE\n\n");
-				break;
-			}else if (vetor[j] == preOrdem->direita->valor){
-				flagD = 1;
-				printf("FlagD\n\n");
-				break;
-			}else if (flag==1 && flagE==1 && flagD==1) {
-				preOrdem = preOrdem->ant;
-				printf("Voltei\n\n");
-				break;
-			}
+int contadorProfundidadeArvore(PontNo raiz){
+	if(raiz != NULL){
+		int altura_esquerda = contadorProfundidadeArvore(raiz->esquerda);
+		int altura_direita = contadorProfundidadeArvore(raiz->direita);
+		if(altura_esquerda > altura_direita){
+			return altura_esquerda + 1;
+		}else {
+			return altura_direita + 1;
 		}
-		
-			
-		if(flag == 0){
-			vetor[i] = preOrdem->valor;
-			i++;
-			printf("%d ", preOrdem->valor);
-		}else if(flagE == 0){
-			preOrdem = preOrdem->esquerda;
-			vetor[i] = preOrdem->valor;
-			i++;
-			printf("%d ", preOrdem->valor);
-		}else if(flagD == 0){
-			preOrdem = preOrdem->direita;
-			vetor[i] = preOrdem->valor;
-			i++;
-			printf("%d ", preOrdem->valor);
-		}
-	}
-	
-	
-	for(int j=0;j<20;j++){
-		printf("%d - ", vetor[j]);
 	}
 }
 
@@ -263,11 +156,15 @@ int main()
 		printf("6--> Pos-Ordem ");
 		ops = _getch();
 		if (ops == SEIS){
+			profundidade = 0;
 			exibirArvorePosOrdem(primeiro);
+			printf("\n\nProfundidade = %i", contadorProfundidadeArvore(primeiro) - 1);
 			system("pause");
 		}
 		else if (ops==CINCO){
+			profundidade = 0;
 			exibirArvorePreOrdem(primeiro);
+			printf("\n\nProfundidade = %i", contadorProfundidadeArvore(primeiro) - 1);
 			system("pause");
 		}
 		else if (ops == QUATRO){
@@ -276,7 +173,9 @@ int main()
 				printf("\n\nArvore vazia!!!");
 			}
 			else{
+				profundidade = 0;
 				exibirArvoreEmOrdem(primeiro);
+				printf("\n\nProfundidade = %i", contadorProfundidadeArvore(primeiro) - 1);
 				printf("\n\n\n");
 				system("pause");
 
@@ -309,7 +208,7 @@ int main()
 				system("cls");
 				printf("Informe um numero ");
 				scanf("%d", &ajuda);
-			gravar:
+				gravar:
 				fflush(stdin);
 				arvore *fim = primeiro;
 				posisaoAnterior = primeiro;
@@ -347,9 +246,37 @@ int main()
 
 					if (ajuda < aux->valor){
 						aux->esquerda = atual;
+						aux->balanceamento = aux->balanceamento - 1;
+						
+						if(aux->ant != NULL){
+							aux->ant->balanceamento = aux->ant->balanceamento - 1;
+							if(aux->ant->ant != NULL){
+								aux->ant->ant->balanceamento = aux->ant->ant->balanceamento - 1;
+								if(aux->ant->ant->ant != NULL){
+									aux->ant->ant->ant->balanceamento = aux->ant->ant->ant->balanceamento - 1;
+									if(aux->ant->ant->ant->ant != NULL){
+										aux->ant->ant->ant->ant->balanceamento = aux->ant->ant->ant->ant->balanceamento - 1;
+									}
+								}
+							}
+						}
 					}
 					else if (ajuda > aux->valor){
 						aux->direita = atual;
+						aux->balanceamento = aux->balanceamento + 1;
+						
+						if(aux->ant != NULL){
+							aux->ant->balanceamento = aux->ant->balanceamento + 1;
+							if(aux->ant->ant != NULL){
+								aux->ant->ant->balanceamento = aux->ant->ant->balanceamento + 1;
+								if(aux->ant->ant->ant != NULL){
+									aux->ant->ant->ant->balanceamento = aux->ant->ant->ant->balanceamento + 1;
+									if(aux->ant->ant->ant->ant != NULL){
+										aux->ant->ant->ant->ant->balanceamento = aux->ant->ant->ant->ant->balanceamento + 1;
+									}
+								}
+							}
+						}
 					}
 				}
 			}
@@ -385,7 +312,7 @@ int main()
 						system("cls");
 						printf("\n\nPara percorer a arvore use as seta <^>, para deletar precione 1, e para sair precione a tecla para baixo\n\n\n");
 						printf("\n\n----------");
-						printf("[%d]", posicaoAtual->valor);
+						printf("[%d](%d)", posicaoAtual->valor, posicaoAtual->balanceamento);
 						printf("----------\n"
 							"------[%d]----[%d]------", posicaoAtual->esquerda->valor, posicaoAtual->direita->valor);
 						test = 111;
@@ -394,7 +321,7 @@ int main()
 						system("cls");
 						printf("\n\nPara percorer a arvore use as seta <^>, para deletar precione 1, e para sair precione a tecla para baixo\n\n\n");
 						printf("\n\n----------");
-						printf("[%d]", posicaoAtual->valor);
+						printf("[%d](%d)", posicaoAtual->valor, posicaoAtual->balanceamento);
 						printf("----------\n"
 							"-------[*]----[%d]------", posicaoAtual->direita->valor);
 						test = 101;
@@ -403,7 +330,7 @@ int main()
 						system("cls");
 						printf("\n\nPara percorer a arvore use as seta <^>, para deletar precione 1, e para sair precione a tecla para baixo\n\n\n");
 						printf("\n\n----------");
-						printf("[%d]", posicaoAtual->valor);
+						printf("[%d](%d)", posicaoAtual->valor, posicaoAtual->balanceamento);
 						printf("----------\n"
 							"------[%d]----[*]-------", posicaoAtual->esquerda->valor);
 						test = 110;
@@ -412,7 +339,7 @@ int main()
 						system("cls");
 						printf("\n\nPara percorer a arvore use as seta <^>, para deletar precione 1, e para sair precione a tecla para baixo\n\n\n");
 						printf("\n\n----------");
-						printf("[%d]", posicaoAtual->valor);
+						printf("[%d](%d)", posicaoAtual->valor, posicaoAtual->balanceamento);
 						printf("----------\n"
 							"-------[*]----[*]-------");
 						test = 100;
