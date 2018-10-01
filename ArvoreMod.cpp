@@ -130,6 +130,20 @@ void exibirArvorePosOrdem(PontNo raiz){
   	printf("%i ",raiz->valor);
 }
 
+void balanceamentoMenos(PontNo aux){
+	aux->balanceamento = aux->balanceamento - 1;
+	if(aux->ant != NULL){
+		balanceamentoMenos(aux->ant);	
+	}
+}
+
+void balanceamentoSoma(PontNo aux){
+	aux->balanceamento = aux->balanceamento + 1;
+	if(aux->ant != NULL){
+		balanceamentoSoma(aux->ant);	
+	}
+}
+
 int contadorProfundidadeArvore(PontNo raiz){
 	if(raiz != NULL){
 		int altura_esquerda = contadorProfundidadeArvore(raiz->esquerda);
@@ -246,9 +260,10 @@ int main()
 
 					if (ajuda < aux->valor){
 						aux->esquerda = atual;
-						aux->balanceamento = aux->balanceamento - 1;
+						/*aux->balanceamento = aux->balanceamento - 1;*/
 						
-						if(aux->ant != NULL){
+						balanceamentoMenos(aux);						
+						/*if(aux->ant != NULL){
 							aux->ant->balanceamento = aux->ant->balanceamento - 1;
 							if(aux->ant->ant != NULL){
 								aux->ant->ant->balanceamento = aux->ant->ant->balanceamento - 1;
@@ -259,13 +274,13 @@ int main()
 									}
 								}
 							}
-						}
+						}*/
 					}
 					else if (ajuda > aux->valor){
 						aux->direita = atual;
-						aux->balanceamento = aux->balanceamento + 1;
-						
-						if(aux->ant != NULL){
+						/*aux->balanceamento = aux->balanceamento + 1;*/
+						balanceamentoSoma(aux);
+						/*if(aux->ant != NULL){
 							aux->ant->balanceamento = aux->ant->balanceamento + 1;
 							if(aux->ant->ant != NULL){
 								aux->ant->ant->balanceamento = aux->ant->ant->balanceamento + 1;
@@ -276,7 +291,7 @@ int main()
 									}
 								}
 							}
-						}
+						}*/
 					}
 				}
 			}
